@@ -3,6 +3,7 @@ package com.sky.carDealership.service;
 import com.sky.carDealership.model.User;
 import com.sky.carDealership.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,7 +15,14 @@ public class UserService {
     private UserRepository userRepository;
 
     public Optional<User> createUser(User user) {
-        User savedUser = userRepository.save(user);
+        User savedUser;
+
+        try {
+            savedUser = userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            return Optional.empty();
+        }
+
         return Optional.of(savedUser);
     }
 

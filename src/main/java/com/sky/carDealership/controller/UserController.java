@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -22,11 +19,11 @@ public class UserController {
 
     @PostMapping("/users/register")
     @ResponseBody
-    public ResponseEntity<?> register(User user) {
+    public ResponseEntity<?> register(@RequestBody User user) {
         StringBuilder errorMessage = new StringBuilder();
         boolean badRequest = false;
 
-        if (!isValidString(user.getName()) || isValidString(user.getSurname())) {
+        if (!isValidString(user.getName()) || !isValidString(user.getSurname())) {
             badRequest = true;
             errorMessage.append("The user name and surname need to be non-numeric characters\n");
         } else if (!isValidEmail(user.getEmail())) {
@@ -41,7 +38,7 @@ public class UserController {
         Optional<User> createdUser = userService.createUser(user);
 
         if (createdUser.isEmpty()){
-            return new ResponseEntity<>("User creation unsuccessful",
+            return new ResponseEntity<>(String.format("User creation unsuccessful - the email address \"%s\" is not unique", user.getEmail()),
                     HttpStatus.BAD_REQUEST);
         }
 
