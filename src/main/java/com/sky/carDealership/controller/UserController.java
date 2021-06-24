@@ -52,7 +52,6 @@ public class UserController {
 
     private boolean isValidString(String string) {
         if (string == null || !string.matches("[a-zA-Z]+")) {
-            System.out.println("The user input " + string + " is not valid");
             return false;
         }
         return true;
@@ -60,7 +59,6 @@ public class UserController {
 
     private boolean isValidEmail(String email) {
         if (email == null || !email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
-            System.out.println("The email input " + email + " is not valid");
             return false;
         }
         return true;

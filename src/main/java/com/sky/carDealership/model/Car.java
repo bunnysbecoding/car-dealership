@@ -3,6 +3,7 @@ package com.sky.carDealership.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -38,10 +39,17 @@ public class Car {
     @Getter @Setter
     private int mileage;
 
-    public Car(@NonNull String brand, int year, int price, int mileage) {
+    @Column
+    @NonNull
+    @Getter @Setter
+    @Value("true")
+    private boolean available;
+
+    public Car(String brand, int year, int price, int mileage) {
         this.brand = brand;
         this.year = year;
         this.price = price;
         this.mileage = mileage;
+        this.available = true;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,12 +18,14 @@ import java.util.Optional;
 public class CarController {
 
     @Autowired
-    private CarService service;
+    private CarService carService;
+
+    private static final String CAR_LIST_EMPTY_MESSAGE = "Your car list is empty";
 
     @ResponseBody
     @GetMapping("/cars/{id}/")
     public ResponseEntity<?> getCarById(@PathVariable("id") Long id) {
-        Optional<Car> car = service.getCarById(id);
+        Optional<Car> car = carService.getCarById(id);
 
         if (car.isPresent()) {
             return new ResponseEntity<>(car, HttpStatus.OK);
@@ -33,31 +36,38 @@ public class CarController {
 
     @ResponseBody
     @GetMapping("/cars")
-    public ResponseEntity<?> getCarsMatchingBrand(@RequestParam("brand") String brand) {
-        return new ResponseEntity<>(service.getCarsMatchingBrand(brand), HttpStatus.OK);
-    }
-
-    @ResponseBody
-    @GetMapping("/cars")
-    public ResponseEntity<?> getOrderedCars(@RequestParam("order") String order) {
+    public ResponseEntity<?> getOrderedCars(@RequestParam(value = "brand") Optional<String> brand, @RequestParam(value = "order") Optional<String> order) {
 
         List<Car> carList;
 
-        switch (OrderEnum.valueOf(order)){
-            case YEAR : carList = service.getCarsOrderedByYear(); break;
-            case PRICE : carList = service.getCarsOrderedByPrice(); break;
-            case MILEAGE: carList = service.getCarsOrderedByMileage(); break;
-            case BRAND : carList = service.getCarsOrderedByBrand(); break;
-            default: carList = service.getAllAvailableCars(); break;
+        if (brand.isEmpty()) {
+            carList = carService.getAllAvailableCars();
+        } else if (brand.get().isBlank()) {
+            return new ResponseEntity<>("Can't filter by empty string", HttpStatus.BAD_REQUEST);
+        } else {
+            carList = carService.getCarsMatchingBrand(brand.get());
+        }
 
+        if(order.isPresent()) {
+            switch (OrderEnum.orderEnumValueOf(order.get())){
+                case YEAR : carService.sortByYear(carList); break;
+                case PRICE : carService.sortByPrice(carList); break;
+                case MILEAGE: carService.sortByMileage(carList); break;
+                case BRAND : carService.sortByBrand(carList); break;
+                default : return new ResponseEntity<>(invalidOrderMessage(order.get()), HttpStatus.BAD_REQUEST);
+            }
         }
 
         if (carList.isEmpty()){
-            return new ResponseEntity<>("Your List is Empty", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(CAR_LIST_EMPTY_MESSAGE, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(service.getCarsOrderedByYear(), HttpStatus.OK);
+        return new ResponseEntity<>(carList, HttpStatus.OK);
+    }
 
-
+    private String invalidOrderMessage(String order) {
+        StringBuilder orderMessage = new StringBuilder(String.format("This order is not valid - \"%s\"\n", order));
+        orderMessage.append(String.format("The following are valid order types: %s", OrderEnum.validOrdersStr()));
+        return orderMessage.toString();
     }
 
 }
