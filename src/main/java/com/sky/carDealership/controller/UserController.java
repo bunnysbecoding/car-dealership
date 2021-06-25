@@ -23,10 +23,10 @@ public class UserController {
         StringBuilder errorMessage = new StringBuilder();
         boolean badRequest = false;
 
-        if (!isValidString(user.getName()) || !isValidString(user.getSurname())) {
+        if (isInvalidString(user.getName()) || isInvalidString(user.getSurname())) {
             badRequest = true;
             errorMessage.append("The user name and surname need to be non-numeric characters\n");
-        } else if (!isValidEmail(user.getEmail())) {
+        } else if (isInvalidEmail(user.getEmail())) {
             badRequest = true;
             errorMessage.append("The user email need to be valid");
         }
@@ -47,18 +47,12 @@ public class UserController {
 
     }
 
-    private boolean isValidString(String string) {
-        if (string == null || !string.matches("[a-zA-Z]+")) {
-            return false;
-        }
-        return true;
+    private boolean isInvalidString(String string) {
+        return string == null || !string.matches("[a-zA-Z]+");
     }
 
-    private boolean isValidEmail(String email) {
-        if (email == null || !email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
-            return false;
-        }
-        return true;
+    private boolean isInvalidEmail(String email) {
+        return email == null || !email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
     }
 
 }

@@ -2,6 +2,7 @@ package com.sky.carDealership.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -33,9 +34,15 @@ public class Booking {
     @NonNull
     private Date timeBooked;
 
+    @Column
+    @NonNull
+    @Value("true")
+    private boolean active;
+
     public Booking(@NonNull Car car, @NonNull User user) {
         this.car = car;
         this.user = user;
         this.timeBooked = new Date();
+        this.active = true;
     }
 }

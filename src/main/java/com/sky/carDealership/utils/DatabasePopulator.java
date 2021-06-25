@@ -1,7 +1,9 @@
 package com.sky.carDealership.utils;
 
+import com.sky.carDealership.model.Booking;
 import com.sky.carDealership.model.Car;
 import com.sky.carDealership.model.User;
+import com.sky.carDealership.repository.BookingRepository;
 import com.sky.carDealership.repository.CarRepository;
 import com.sky.carDealership.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class DatabasePopulator {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BookingRepository bookingRepository;
+
     @PostConstruct
     public void databaseInit() {
         List<Car> cars = List.of(
@@ -31,7 +36,10 @@ public class DatabasePopulator {
                 new Car("Fiat",2008,90000,30000)
         );
 
-        userRepository.save(new User("Chief", "Keef", "chief_keef@hotmail.com"));
+        User user = new User("Chief", "Keef", "chief_keef@hotmail.com");
+
         carRepository.saveAll(cars);
+        userRepository.save(user);
+        bookingRepository.save(new Booking(cars.get(0), user));
     }
 }

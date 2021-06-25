@@ -10,10 +10,7 @@ import com.sky.carDealership.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -27,6 +24,7 @@ public class BookingController {
 
     @Autowired
     private BookingService bookingService;
+
 
     @ResponseBody
     @PostMapping("/booking/create")
@@ -47,5 +45,31 @@ public class BookingController {
         } else {
             return new ResponseEntity<>("Booking unsuccessful", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @ResponseBody
+    @PutMapping("/booking/{id}/cancel")
+    public ResponseEntity<?> cancelBooking(@PathVariable("id") Long id) {
+        Optional<Booking> booking = bookingService.getBooking(id);
+
+        if (booking.isEmpty()) {
+            return new ResponseEntity<>("Booking not found",HttpStatus.BAD_REQUEST);
+        } else {
+            Optional<Booking> cancelledBooking = bookingService.cancelBooking(booking.get());
+
+            return cancelledBooking.isEmpty()
+                    ? new ResponseEntity<>("Booking not found",HttpStatus.BAD_REQUEST)
+                    : new ResponseEntity<>(booking.get(),HttpStatus.ACCEPTED);
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/booking/{id}")
+    public ResponseEntity<?> getBooking(@PathVariable("id") Long id) {
+        Optional<Booking> booking = bookingService.getBooking(id);
+
+        return booking.isEmpty()
+            ? new ResponseEntity<>("Booking not found",HttpStatus.BAD_REQUEST)
+            : new ResponseEntity<>(booking.get(),HttpStatus.ACCEPTED);
     }
 }

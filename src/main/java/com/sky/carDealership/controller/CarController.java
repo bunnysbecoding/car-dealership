@@ -50,10 +50,10 @@ public class CarController {
 
         if(order.isPresent()) {
             switch (OrderEnum.orderEnumValueOf(order.get())){
-                case YEAR : carService.sortByYear(carList); break;
-                case PRICE : carService.sortByPrice(carList); break;
-                case MILEAGE: carService.sortByMileage(carList); break;
-                case BRAND : carService.sortByBrand(carList); break;
+                case YEAR : carList = carService.sortByYear(carList); break;
+                case PRICE : carList = carService.sortByPrice(carList); break;
+                case MILEAGE: carList = carService.sortByMileage(carList); break;
+                case BRAND : carList = carService.sortByBrand(carList); break;
                 default : return new ResponseEntity<>(invalidOrderMessage(order.get()), HttpStatus.BAD_REQUEST);
             }
         }
