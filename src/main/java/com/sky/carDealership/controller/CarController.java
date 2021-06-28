@@ -1,6 +1,7 @@
 package com.sky.carDealership.controller;
 
 import com.sky.carDealership.enums.OrderEnum;
+import com.sky.carDealership.enums.RestCustomExceptionEnum;
 import com.sky.carDealership.model.Car;
 import com.sky.carDealership.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,6 @@ public class CarController {
     @Autowired
     private CarService carService;
 
-    private static final String CAR_LIST_EMPTY_MESSAGE = "Your car list is empty";
-
     @ResponseBody
     @GetMapping("/cars/{id}/")
     public ResponseEntity<?> getCarById(@PathVariable("id") Long id) {
@@ -30,7 +29,7 @@ public class CarController {
         if (car.isPresent()) {
             return new ResponseEntity<>(car, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Could not find car matching id " + id, HttpStatus.NOT_FOUND);
+            return RestCustomExceptionEnum.CAR_NOT_FOUND_EXCEPTION.customResponse("Could not find car matching ID '%s'", id);
         }
     }
 
@@ -43,7 +42,7 @@ public class CarController {
         if (brand.isEmpty()) {
             carList = carService.getAllAvailableCars();
         } else if (brand.get().isBlank()) {
-            return new ResponseEntity<>("Can't filter by empty string", HttpStatus.BAD_REQUEST);
+            return RestCustomExceptionEnum.EMPTY_REQUEST_PARAMETER_EXCEPTION.customResponse();
         } else {
             carList = carService.getCarsMatchingBrand(brand.get());
         }
@@ -54,18 +53,15 @@ public class CarController {
                 case PRICE : carList = carService.sortByPrice(carList); break;
                 case MILEAGE: carList = carService.sortByMileage(carList); break;
                 case BRAND : carList = carService.sortByBrand(carList); break;
-                default : return new ResponseEntity<>(invalidOrderMessage(order.get()), HttpStatus.BAD_REQUEST);
+                default : RestCustomExceptionEnum.INVALID_ORDER_REQUEST_EXCEPTION.customResponse(invalidOrderMessage(order.get()));
             }
         }
 
-        if (carList.isEmpty()){
-            return new ResponseEntity<>(CAR_LIST_EMPTY_MESSAGE, HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(carList, HttpStatus.OK);
     }
 
     private String invalidOrderMessage(String order) {
-        StringBuilder orderMessage = new StringBuilder(String.format("This order is not valid - \"%s\"\n", order));
+        StringBuilder orderMessage = new StringBuilder(String.format("This order is not valid - '%s'", order));
         orderMessage.append(String.format("The following are valid order types: %s", OrderEnum.validOrdersStr()));
         return orderMessage.toString();
     }

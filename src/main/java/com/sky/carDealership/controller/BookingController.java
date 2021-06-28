@@ -1,6 +1,7 @@
 package com.sky.carDealership.controller;
 
 import com.sky.carDealership.dto.BookingDto;
+import com.sky.carDealership.enums.RestCustomExceptionEnum;
 import com.sky.carDealership.model.Booking;
 import com.sky.carDealership.model.Car;
 import com.sky.carDealership.model.User;
@@ -27,15 +28,15 @@ public class BookingController {
 
 
     @ResponseBody
-    @PostMapping("/booking/create")
+    @PostMapping("/bookings/create")
     public ResponseEntity<?> createBooking(@RequestBody BookingDto booking) {
         Optional<Car> car = carRepository.findById(booking.getCarId());
         Optional<User> user = userRepository.findById(booking.getUserId());
 
         if (car.isEmpty() || user.isEmpty()) {
-            return new ResponseEntity<>("The car and the user need be valid IDs", HttpStatus.BAD_REQUEST);
+            return RestCustomExceptionEnum.INVALID_ID_EXCEPTION.customResponse();
         } else if (!car.get().isAvailable()) {
-            return new ResponseEntity<>("The car you are trying to book is unavailable", HttpStatus.BAD_REQUEST);
+            return RestCustomExceptionEnum.CAR_UNAVAILABLE_EXCEPTION.customResponse();
         }
 
         Optional<Booking> createdBooking = bookingService.createBooking(car.get(), user.get());
@@ -43,33 +44,33 @@ public class BookingController {
         if(createdBooking.isPresent()) {
             return new ResponseEntity<>(createdBooking, HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>("Booking unsuccessful", HttpStatus.BAD_REQUEST);
+            return RestCustomExceptionEnum.BOOKING_UNSUCCESSFUL_EXCEPTION.customResponse();
         }
     }
 
     @ResponseBody
-    @PutMapping("/booking/{id}/cancel")
+    @PutMapping("/bookings/{id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable("id") Long id) {
         Optional<Booking> booking = bookingService.getBooking(id);
 
         if (booking.isEmpty()) {
-            return new ResponseEntity<>("Booking not found",HttpStatus.BAD_REQUEST);
+            return RestCustomExceptionEnum.BOOKING_NOT_FOUND_EXCEPTION.customResponse();
         } else {
             Optional<Booking> cancelledBooking = bookingService.cancelBooking(booking.get());
 
             return cancelledBooking.isEmpty()
-                    ? new ResponseEntity<>("Booking not found",HttpStatus.BAD_REQUEST)
+                    ? RestCustomExceptionEnum.BOOKING_NOT_FOUND_EXCEPTION.customResponse()
                     : new ResponseEntity<>(booking.get(),HttpStatus.ACCEPTED);
         }
     }
 
     @ResponseBody
-    @GetMapping("/booking/{id}")
+    @GetMapping("/bookings/{id}")
     public ResponseEntity<?> getBooking(@PathVariable("id") Long id) {
         Optional<Booking> booking = bookingService.getBooking(id);
 
         return booking.isEmpty()
-            ? new ResponseEntity<>("Booking not found",HttpStatus.BAD_REQUEST)
+            ? RestCustomExceptionEnum.BOOKING_NOT_FOUND_EXCEPTION.customResponse()
             : new ResponseEntity<>(booking.get(),HttpStatus.ACCEPTED);
     }
 }
