@@ -29,7 +29,7 @@ public class UserController {
             errorMessage.append("The user name and surname need to be non-numeric characters; ");
         } else if (isInvalidEmail(user.getEmail())) {
             badRequest = true;
-            errorMessage.append("The user email need to be a valid address.");
+            errorMessage.append("The user email needs to be a valid address.");
         }
 
         if (badRequest) {
